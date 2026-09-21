@@ -1,0 +1,7 @@
+{
+  "mcpServers": {
+    "v7-go": {
+      "url": "${V7_GO_MCP_URL}"
+    }
+  }
+}
