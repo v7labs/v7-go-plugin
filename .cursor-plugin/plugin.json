@@ -1,0 +1,38 @@
+{
+  "name": "v7-go",
+  "version": "0.1.2",
+  "description": "Connect your AI assistant to V7 Go to build and run enterprise workflows, inspect results, and search company knowledge. Work with documents, structured data, and automations using your existing V7 Go workspace.",
+  "author": {
+    "name": "V7"
+  },
+  "homepage": "https://www.v7labs.com/mcp",
+  "repository": "https://github.com/v7labs/v7-go-plugin",
+  "license": "MIT",
+  "keywords": [
+    "v7",
+    "workflows",
+    "documents",
+    "enterprise",
+    "mcp",
+    "knowledge"
+  ],
+  "logo": "assets/logo.png",
+  "mcpServers": "mcp.json",
+  "variables": {
+    "type": "object",
+    "properties": {
+      "V7_GO_MCP_URL": {
+        "type": "string",
+        "title": "V7 Go workspace region",
+        "description": "Choose the endpoint matching your workspace: mcp.go.v7labs.com for EU, or mcp.go.us.v7labs.com for US.",
+        "enum": [
+          "https://mcp.go.v7labs.com",
+          "https://mcp.go.us.v7labs.com"
+        ]
+      }
+    },
+    "required": [
+      "V7_GO_MCP_URL"
+    ]
+  }
+}

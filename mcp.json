@@ -1,7 +1,7 @@
 {
   "mcpServers": {
     "v7-go": {
-      "url": "https://mcp.go.v7labs.com"
+      "url": "${V7_GO_MCP_URL}"
     }
   }
 }
