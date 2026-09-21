@@ -1,0 +1,21 @@
+{
+  "name": "v7-go",
+  "owner": {
+    "name": "V7"
+  },
+  "metadata": {
+    "description": "V7 Go MCP plugins for EU and US workspaces."
+  },
+  "plugins": [
+    {
+      "name": "v7-go",
+      "source": "plugins/v7-go",
+      "description": "Connect to V7 Go workspaces in the EU region."
+    },
+    {
+      "name": "v7-go-us",
+      "source": "plugins/v7-go-us",
+      "description": "Connect to V7 Go workspaces in the US region."
+    }
+  ]
+}
