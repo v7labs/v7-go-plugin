@@ -15,7 +15,7 @@ Available tools and actions depend on the authenticated workspace and permission
 
 ## Current test status
 
-The plugin imports into a Cursor team marketplace and installs in Grok Bot with a working EU/US region selector. The EU flow reaches V7's workspace consent page without deploying the proposed backend callback change. Completed authorization and a real tool call are still pending. An earlier Cursor local test failed during registration; that result does not describe the observed Grok Bot consent-page handoff. See [TESTING.md](TESTING.md) for evidence and remaining checks.
+The plugin imports into a Cursor team marketplace and installs in Grok Bot with a working EU/US region selector. The EU flow completed OAuth with owner-approved permissions and exposed 46 enabled tools. Grok Bot reported a successful read-only `list_workflows` call returning five workflows. No proposed backend callback change was deployed. An earlier Cursor local test failed during registration; that result does not describe the verified Grok Bot flow. See [TESTING.md](TESTING.md) for evidence and remaining checks.
 
 ## Requirements
 
@@ -30,7 +30,7 @@ Once published, install **V7 Go**. In the Cursor dashboard under **Plugins → C
 | EU | `https://mcp.go.v7labs.com` |
 | US | `https://mcp.go.us.v7labs.com` |
 
-One plugin supports either endpoint through the required `V7_GO_MCP_URL` configuration variable. No default region is assumed. The two allowed values are declared using JSON Schema `enum`, as supported by the [Cursor plugin reference](https://cursor.com/docs/reference/plugins#variables). The region dropdown has been verified in both the dashboard and Grok Bot. Grok Bot asks for the region during its own installation flow. The EU selection has reached consent; the US connection still needs an end-to-end test.
+One plugin supports either endpoint through the required `V7_GO_MCP_URL` configuration variable. No default region is assumed. The two allowed values are declared using JSON Schema `enum`, as supported by the [Cursor plugin reference](https://cursor.com/docs/reference/plugins#variables). The region dropdown has been verified in both the dashboard and Grok Bot. Grok Bot asks for the region during its own installation flow. The EU selection has completed OAuth and a read-only workflow-list test; the US connection still needs an end-to-end test.
 
 Clients that support custom MCP connections can also use the appropriate endpoint directly. These direct connections do not test marketplace configuration. If you need simultaneous access to both regions, configure two custom MCP connections; two concurrent configurations of the marketplace plugin have not been verified.
 
@@ -88,4 +88,4 @@ LICENSE                            Package license
 
 ## Compatibility note
 
-Version 0.1.1 temporarily split the endpoints into two plugin entries to isolate an OAuth failure during local testing. Version 0.1.2 uses one plugin with a required region choice, following Cursor's documented dashboard variable configuration. The earlier local substitution failure does not demonstrate that marketplace variables are unsupported. Team-marketplace import, Grok Bot region selection, installation, and EU consent-page handoff have been verified. Completed authorization, tool calls, and public-marketplace distribution remain unverified.
+Version 0.1.1 temporarily split the endpoints into two plugin entries to isolate an OAuth failure during local testing. Version 0.1.2 uses one plugin with a required region choice, following Cursor's documented dashboard variable configuration. The earlier local substitution failure does not demonstrate that marketplace variables are unsupported. Team-marketplace import, Grok Bot region selection, installation, EU authorization, and a read-only workflow-list call have been verified. The US connection, write operations, and public-marketplace distribution remain unverified.

@@ -1,6 +1,6 @@
 # Client compatibility test
 
-Tested September 21, 2026, using Cursor 3.21.16 on macOS arm64. The Cursor local tests below used version 0.1.1's temporary fixed-URL packages. Version 0.1.2 consolidates distribution into one configurable plugin; its team-marketplace installation and EU consent-page handoff have now been tested in Grok Bot 0.57.1. Completed authorization and tool calls remain pending.
+Tested September 21, 2026, using Cursor 3.21.16 on macOS arm64. The Cursor local tests below used version 0.1.1's temporary fixed-URL packages. Version 0.1.2 consolidates distribution into one configurable plugin; its team-marketplace installation, EU authorization, and a read-only workflow-list call were tested in Grok Bot 0.57.1 on September 22, 2026.
 
 ## Results
 
@@ -8,13 +8,15 @@ Tested September 21, 2026, using Cursor 3.21.16 on macOS arm64. The Cursor local
 | --- | --- |
 | Local discovery of version 0.1.1 | PASS: Cursor loaded both temporary regional plugin entries. |
 | Version 0.1.2 manifest and MCP configuration | PASS: JSON, component paths, declared placeholder, and two allowed HTTPS endpoints checked. |
-| Marketplace configuration support | PASS: imported one plugin from the repository into the Default team marketplace as Default Off. Both dashboard Configure and Grok Bot install render the EU/US dropdown. EU selection reaches the EU consent page. US connection remains NOT TESTED in Grok Bot. |
+| Marketplace configuration support | PASS: imported one plugin from the repository into the Default team marketplace as Default Off. Both dashboard Configure and Grok Bot install render the EU/US dropdown. EU selection completes authorization and a read-only tool test. US connection remains NOT TESTED in Grok Bot. |
 | EU and US OAuth discovery | PASS: both publish resource and authorization-server metadata, including PKCE S256. |
 | Cursor local EU fixed-URL connection | BLOCKED: dynamic client registration returned HTTP 400 before sign-in. |
 | Cursor local US fixed-URL connection | BLOCKED: same registration error. |
 | Cursor local completed OAuth and tool calls | NOT TESTED: blocked by registration. |
 | Grok Bot team-marketplace installation (September 22) | PASS after admin access was granted: repository imported, region selected, plugin installed, Authenticate opened the EU V7 workspace consent page. |
-| Grok Bot completed authorization and tool call | PENDING: stopped at consent with only workflow/data read access selected, awaiting the account owner’s approval. |
+| Grok Bot EU authorization and tool discovery | PASS: owner approved all offered permissions; Grok Bot showed Connected and 46 of 46 tools enabled. |
+| Grok Bot EU read-only tool call | PASS: a dedicated test bot reported `list_workflows` succeeded and returned five workflows. |
+| Grok Bot US connection, write operations, public listing | NOT TESTED. |
 
 ## Region configuration findings
 
@@ -38,7 +40,7 @@ Cursor also reports that the error body lacks the OAuth `error` field. It subseq
 
 The Cursor local-test rejection occurs in V7 Go's MCP registration handler before the authorization flow redirects to Auth0. Changing Auth0 callback settings does not resolve that validation failure. Any backend compatibility fix must preserve exact registered redirect matching and PKCE; registration errors should use OAuth-compatible response fields. No backend fix or Auth0 change was deployed as part of this package work.
 
-This does not establish that Grok Bot's cloud path behaves identically. That client needs its own end-to-end test.
+The successful Grok Bot EU team-marketplace test below demonstrates different behavior from this earlier local Cursor test. The underlying registration payloads were not captured, so the cause of the difference remains unverified.
 
 ## Grok Bot team-marketplace check — September 22, 2026
 
@@ -50,7 +52,11 @@ The dashboard Configure UI displayed `V7 Go workspace region` with both HTTPS en
 
 Clicking Authenticate opened `https://mcp.go.v7labs.com/oauth/consent` in the browser, displaying Authorize Cursor, a workspace selector, and permission checkboxes. Therefore this team-marketplace EU flow passed the registration/sign-in steps that blocked the earlier Cursor local test. No native-callback compatibility fix from this task was deployed. We did not capture the underlying registration request, so the reason for the different behavior is not yet established.
 
-All optional scopes were explicitly unchecked. Only the mandatory workflow/data read permission remains selected. Authorization is pending the account owner's approval; no tool call has been made. The proposed backend callback exception remains on hold. The US flow and eventual public-marketplace listing still require testing.
+After the account owner explicitly requested reconnection with all permissions, we reset the plugin account and completed consent with every offered permission selected for the chosen EU workspace. Grok Bot then showed **Connected** and **46 of 46 tools enabled**.
+
+A separate test bot was instructed to use only this plugin for one read-only workflow-list call, limited to five results, and to stop afterward. It reported **Succeeded**, tool **`list_workflows`**, and **5 workflows returned**. This evidence is the Grok Bot UI result; raw MCP request/response traces were not captured. No write operation was requested or tested. Private workspace identifiers and workflow data are omitted from this report.
+
+The proposed backend callback exception remains on hold: it was not needed for this successful EU team-marketplace test. The US flow and eventual public-marketplace listing still require testing.
 
 ## Retest
 
