@@ -8,7 +8,7 @@ Tested September 21, 2026, using Cursor 3.21.16 on macOS arm64. The Cursor local
 | --- | --- |
 | Local discovery of version 0.1.1 | PASS: Cursor loaded both temporary regional plugin entries. |
 | Version 0.1.2 manifest and MCP configuration | PASS: JSON, component paths, declared placeholder, and two allowed HTTPS endpoints checked. |
-| Marketplace configuration support | PASS: imported one plugin from the repository into the Default team marketplace as Default Off. Both dashboard Configure and Grok Bot install render the EU/US dropdown. EU selection completes authorization and a read-only tool test. US connection remains NOT TESTED in Grok Bot. |
+| Marketplace configuration support | PASS: imported one plugin from the repository into the Default team marketplace as Default Off. Both dashboard Configure and Grok Bot install render the EU/US dropdown. EU selection completes authorization and a read-only tool test. US authorization and a read-only workflow-list call also passed. |
 | EU and US OAuth discovery | PASS: both publish resource and authorization-server metadata, including PKCE S256. |
 | Cursor local EU fixed-URL connection | BLOCKED: dynamic client registration returned HTTP 400 before sign-in. |
 | Cursor local US fixed-URL connection | BLOCKED: same registration error. |
@@ -16,9 +16,9 @@ Tested September 21, 2026, using Cursor 3.21.16 on macOS arm64. The Cursor local
 | Grok Bot team-marketplace installation (September 22) | PASS after admin access was granted: repository imported, region selected, plugin installed, Authenticate opened the EU V7 workspace consent page. |
 | Grok Bot EU authorization and tool discovery | PASS: owner approved all offered permissions; Grok Bot showed Connected and 46 of 46 tools enabled. |
 | Grok Bot EU read-only tool call | PASS: a dedicated test bot reported `list_workflows` succeeded and returned five workflows. |
-| Grok Bot EU connection reuse | PASS: repeated `list_workflows` calls succeeded without another login. App restart and token refresh have not been verified. |
+| Grok Bot EU connection reuse | PASS: repeated `list_workflows` calls succeeded without another login. Restoring EU and reopening Grok Bot also preserved the connection and a fresh five-item list call passed. Token-expiry refresh has not been verified. |
 | Grok Bot EU workflow-result query | FAIL: successful `workflow_querying_info` followed by `query_workflows` returned MCP -32000 requiring that prerequisite; reproduced with a fresh explicitly sequential retry. No entity was read. |
-| Grok Bot US consent handoff | PASS: selected US in the installed plugin setup; Authenticate opened the US consent page. Authorization and tool calls are pending. |
+| Grok Bot US authorization and tool call | PASS: selected US in installed plugin setup, completed owner-approved full-scope consent, and observed Connected. Grok Bot reported `list_workflows` succeeded with zero workflows and no error in the US test workspace. |
 | Grok Bot write operations, public listing | NOT TESTED. |
 
 ## Region configuration findings
@@ -27,7 +27,7 @@ Version 0.1.0 declared an endpoint variable. In a local Cursor folder import, it
 
 The [Cursor plugin reference](https://cursor.com/docs/reference/plugins#variables) documents that team admins set variables at installation or through dashboard Plugins → Configure. It explicitly accepts `enum` in the variables schema. A local folder import without a configured dashboard value is insufficient evidence that marketplace variables are unsupported.
 
-Version 0.1.2 therefore has one `v7-go` plugin, with `V7_GO_MCP_URL` required and restricted to the EU and US URLs. There is no default, so the workspace region must be selected explicitly. The dashboard renders the enum as a dropdown. Grok Bot also prompts for its own region selection during installation; the EU selection successfully reached the EU consent page. Other client surfaces and the Grok Bot US connection remain unverified.
+Version 0.1.2 therefore has one `v7-go` plugin, with `V7_GO_MCP_URL` required and restricted to the EU and US URLs. There is no default, so the workspace region must be selected explicitly. The dashboard renders the enum as a dropdown. Grok Bot also prompts for its own region selection during installation; the EU selection successfully reached the EU consent page. The US selection also completed OAuth and a successful workflow-list call. Other client surfaces remain unverified.
 
 ## Earlier Cursor local compatibility blocker
 
@@ -59,15 +59,15 @@ After the account owner explicitly requested reconnection with all permissions, 
 
 A separate test bot was instructed to use only this plugin for one read-only workflow-list call, limited to five results, and to stop afterward. It reported **Succeeded**, tool **`list_workflows`**, and **5 workflows returned**. This evidence is the Grok Bot UI result; raw MCP request/response traces were not captured. No write operation was requested or tested. Private workspace identifiers and workflow data are omitted from this report.
 
-The proposed backend callback exception remains on hold: it was not needed for this successful EU team-marketplace test. The US flow and eventual public-marketplace listing still require testing.
+The proposed backend callback exception remains on hold: it was not needed for this successful EU team-marketplace test. The US workflow-list test subsequently passed; the public-marketplace listing still requires testing.
 
 ## Additional pre-submission checks — September 22, 2026
 
-The existing EU account successfully repeated `list_workflows` with `page_size: 5`, returning five workflows without another login. A bounded search for demo/test workflows also succeeded. This checks connection reuse, not a process restart or token-expiry refresh.
+The existing EU account successfully repeated `list_workflows` with `page_size: 5`, returning five workflows without another login. A bounded search for demo/test workflows also succeeded. A later check restored EU after US testing, quit/reopened Grok Bot, and successfully repeated a fresh five-item workflow-list call without another login. Token-expiry refresh remains untested.
 
-The demo-result check failed before retrieving any entity: `workflow_querying_info` succeeded, then `query_workflows` returned MCP error `-32000`: “You must call `workflow_querying_info` tool before using this tool”. A second attempt explicitly called the prerequisite first, waited for success, then queried one demo row; the same error occurred. Evidence is the Grok Bot UI report, not a captured raw transport trace. Backend investigation is pending; do not treat full workflow-result querying as verified.
+The demo-result check failed before retrieving any entity: `workflow_querying_info` succeeded, then `query_workflows` returned MCP error `-32000`: “You must call `workflow_querying_info` tool before using this tool”. A second attempt explicitly called the prerequisite first, waited for success, then queried one demo row; the same error occurred. Evidence is the Grok Bot UI report, not a captured raw transport trace. Backend source inspection and a local transport probe reproduced this error when prerequisite and query calls do not share a surviving MCP session; same-session calls passed. Actual Grok Bot session headers and lifecycle were not captured, so the production transport cause is unverified. A focused backend fix is being prepared to make schema guidance advisory while preserving authorization and complexity controls. No fix has been deployed; do not treat full workflow-result querying as verified.
 
-Grok Bot's Edit Values form states that setup values apply to the plugin's connectors. Switching the endpoint to US reset the account to Needs auth. Authenticate then opened the US V7 consent page with available workspaces. Completed US consent and a read-only tool call remain pending owner approval. This is not a completed US connection test.
+Grok Bot's Edit Values form states that setup values apply to the plugin's connectors. Switching the endpoint to US reset the account to Needs auth. Authenticate then opened the US V7 consent page with available workspaces. The owner then approved all offered permissions for the US test workspace. Consent completed, Grok Bot showed Connected, and a fresh `list_workflows` call limited to five succeeded with zero workflows and no error. We restored EU afterward; it showed Connected and 46 of 46 enabled tools. A fresh EU list call after reopening the app returned five workflows successfully.
 
 ## Retest
 
