@@ -15,7 +15,7 @@ Available tools and actions depend on the authenticated workspace and permission
 
 ## Current test status
 
-Local package loading and endpoint discovery have been checked in Cursor. End-to-end use is currently blocked in both regions: V7 Go rejects the native callback URI in Cursor's OAuth client registration. Authentication and tool calls have not passed. See [TESTING.md](TESTING.md) for the observed failure and retest steps.
+The plugin imports into a Cursor team marketplace and installs in Grok Bot with a working EU/US region selector. The EU flow reaches V7's workspace consent page without deploying the proposed backend callback change. Completed authorization and a real tool call are still pending. An earlier Cursor local test failed during registration; that result does not describe the observed Grok Bot consent-page handoff. See [TESTING.md](TESTING.md) for evidence and remaining checks.
 
 ## Requirements
 
@@ -30,7 +30,7 @@ Once published, install **V7 Go**. In the Cursor dashboard under **Plugins → C
 | EU | `https://mcp.go.v7labs.com` |
 | US | `https://mcp.go.us.v7labs.com` |
 
-One plugin supports either endpoint through the required `V7_GO_MCP_URL` configuration variable. No default region is assumed. The two allowed values are declared using JSON Schema `enum`, as supported by the [Cursor plugin reference](https://cursor.com/docs/reference/plugins#variables). Marketplace configuration UI and Grok Bot propagation still require validation; a local folder import does not establish that those dashboard variables have been configured.
+One plugin supports either endpoint through the required `V7_GO_MCP_URL` configuration variable. No default region is assumed. The two allowed values are declared using JSON Schema `enum`, as supported by the [Cursor plugin reference](https://cursor.com/docs/reference/plugins#variables). The region dropdown has been verified in both the dashboard and Grok Bot. Grok Bot asks for the region during its own installation flow. The EU selection has reached consent; the US connection still needs an end-to-end test.
 
 Clients that support custom MCP connections can also use the appropriate endpoint directly. These direct connections do not test marketplace configuration. If you need simultaneous access to both regions, configure two custom MCP connections; two concurrent configurations of the marketplace plugin have not been verified.
 
@@ -88,4 +88,4 @@ LICENSE                            Package license
 
 ## Compatibility note
 
-Version 0.1.1 temporarily split the endpoints into two plugin entries to isolate an OAuth failure during local testing. Version 0.1.2 uses one plugin with a required region choice, following Cursor's documented dashboard variable configuration. The earlier local substitution failure does not demonstrate that marketplace variables are unsupported. Actual marketplace configuration and Grok Bot compatibility remain unverified.
+Version 0.1.1 temporarily split the endpoints into two plugin entries to isolate an OAuth failure during local testing. Version 0.1.2 uses one plugin with a required region choice, following Cursor's documented dashboard variable configuration. The earlier local substitution failure does not demonstrate that marketplace variables are unsupported. Team-marketplace import, Grok Bot region selection, installation, and EU consent-page handoff have been verified. Completed authorization, tool calls, and public-marketplace distribution remain unverified.
