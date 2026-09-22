@@ -13,7 +13,7 @@ Tested September 21, 2026, using Cursor 3.21.16 on macOS arm64. The live client 
 | EU fixed-URL client connection | BLOCKED: dynamic client registration returned HTTP 400 before sign-in. |
 | US fixed-URL client connection | BLOCKED: same registration error. |
 | Completed OAuth, tool discovery, read-only tool request | NOT TESTED: blocked by registration. |
-| Grok Bot end-to-end connection | NOT TESTED. |
+| Grok Bot marketplace installation (September 22) | BLOCKED before installation: no V7 listing; the test account lacks team marketplace import controls. OAuth and tool calls NOT TESTED in Grok Bot. |
 
 ## Region configuration findings
 
@@ -38,6 +38,16 @@ Cursor also reports that the error body lacks the OAuth `error` field. It subseq
 The rejection occurs in V7 Go's MCP registration handler before the authorization flow redirects to Auth0. Changing Auth0 callback settings does not resolve this validation failure. A backend compatibility fix must preserve exact registered redirect matching and PKCE; registration errors should also use OAuth-compatible response fields. Backend code and Auth0 settings have not been changed as part of this package work.
 
 This does not establish that Grok Bot's cloud path behaves identically. That client needs its own end-to-end test.
+
+## Grok Bot marketplace check — September 22, 2026
+
+Opened Marketplace in the actual Grok Bot desktop app and searched for `V7`: the app reported no matching results. Its catalogue displayed a Team Plugins section with an existing team integration, confirming that team-distributed entries are visible in this client.
+
+The current Cursor account is a team Member. Dashboard → Plugins & MCPs did not expose Team Marketplaces / Import from Repo controls, and Team MCP editing controls were disabled. No V7 plugin was installed or authorized, and no Grok Bot OAuth registration request was captured. This is an installation/access blocker, not a reproduced OAuth failure in Grok Bot.
+
+To unblock a pre-publication test, a team admin should import this repository into the team's existing marketplace and keep installation **Default Off**. The [official team marketplace guide](https://cursor.com/docs/plugins#add-a-team-marketplace) documents repository import and installation modes. Then install V7 Go through Grok Bot's Team Plugins entry and test configuration, OAuth, tool discovery, and a read-only call. A public catalogue test remains unavailable until review and publication.
+
+The proposed backend callback exception remains on hold. Cursor staff describes the native callback as legacy and plans to remove it from registration. Capture the actual Grok Bot registration behavior before deciding whether a service compatibility exception is necessary.
 
 ## Retest
 
