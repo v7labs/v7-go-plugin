@@ -15,7 +15,7 @@ Available tools and actions depend on the authenticated workspace and permission
 
 ## Current test status
 
-The plugin imports into a Cursor team marketplace and installs in Grok Bot with a working EU/US region selector. The EU flow completed OAuth with owner-approved permissions and exposed 46 enabled tools. Grok Bot reported a successful read-only `list_workflows` call returning five workflows. No proposed backend callback change was deployed. An earlier Cursor local test failed during registration; that result does not describe the verified Grok Bot flow. See [TESTING.md](TESTING.md) for evidence and remaining checks.
+The plugin imports into a Cursor team marketplace and installs in Grok Bot with a working EU/US region selector. The EU flow completed OAuth with owner-approved permissions and exposed 46 enabled tools. Grok Bot reported successful read-only `list_workflows` calls returning five workflows. A subsequent result-query test failed reproducibly: `query_workflows` rejected the request as missing `workflow_querying_info`, although the client reported calling it successfully first. Result-query compatibility remains unresolved. No proposed backend callback change was deployed. An earlier Cursor local test failed during registration; that result does not describe the verified Grok Bot flow. See [TESTING.md](TESTING.md) for evidence and remaining checks.
 
 ## Requirements
 
