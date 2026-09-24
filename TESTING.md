@@ -80,7 +80,7 @@ Through the actual installed team-marketplace plugin in the dedicated Grok Bot t
 - **US:** changing the plugin endpoint to US reused the existing authorized account and showed Connected. A fresh `list_workflows` with `page_size: 1` returned zero workflows. `workflow_querying_info` then succeeded, followed by a successful `query_workflows` call with `{ __typename }`. No errors were reported. This empty workspace test verifies GraphQL execution, not entity retrieval.
 - **Restoration:** the plugin endpoint was restored to EU after testing and showed Connected with 51 of 51 tools enabled.
 
-The previously reproducible prerequisite error did not recur. Evidence is the tool outcome report in the native Grok Bot UI; raw MCP transport traces were not captured. No customer documents or property contents were requested or reproduced, and no writes or workflow runs were performed. Token-expiry refresh and public-marketplace installation remain unverified. The public listing has not yet been submitted.
+The previously reproducible prerequisite error did not recur. Evidence is the tool outcome report in the native Grok Bot UI; raw MCP transport traces were not captured. No customer documents or property contents were requested or reproduced, and no writes or workflow runs were performed. Token-expiry refresh and public-marketplace installation remain unverified. The publisher application was submitted on September 24, 2026 after the owner approved the Publisher Terms. Cursor confirmed receipt with “Thanks for applying”. Marketplace review and publication remain pending.
 
 ## Retest
 
