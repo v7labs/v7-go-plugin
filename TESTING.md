@@ -1,6 +1,6 @@
 # Client compatibility test
 
-Tested September 21, 2026, using Cursor 3.21.16 on macOS arm64. The Cursor local tests below used version 0.1.1's temporary fixed-URL packages. Version 0.1.2 consolidates distribution into one configurable plugin; its team-marketplace installation, EU authorization, and a read-only workflow-list call were tested in Grok Bot 0.57.1 on September 22, 2026.
+Tested September 21, 2026, using Cursor 3.21.16 on macOS arm64. The Cursor local tests below used version 0.1.1's temporary fixed-URL packages. Version 0.1.2 consolidates distribution into one configurable plugin; its team-marketplace installation, EU authorization, and a read-only workflow-list call were tested in Grok Bot 0.57.1 on September 22, 2026. Production workflow-query retests through the same installed plugin passed on September 24; the app version was not rechecked during that retest.
 
 ## Results
 
@@ -17,8 +17,9 @@ Tested September 21, 2026, using Cursor 3.21.16 on macOS arm64. The Cursor local
 | Grok Bot EU authorization and tool discovery | PASS: owner approved all offered permissions; Grok Bot showed Connected and 46 of 46 tools enabled. |
 | Grok Bot EU read-only tool call | PASS: a dedicated test bot reported `list_workflows` succeeded and returned five workflows. |
 | Grok Bot EU connection reuse | PASS: repeated `list_workflows` calls succeeded without another login. Restoring EU and reopening Grok Bot also preserved the connection and a fresh five-item list call passed. Token-expiry refresh has not been verified. |
-| Grok Bot EU workflow-result query | FAIL: successful `workflow_querying_info` followed by `query_workflows` returned MCP -32000 requiring that prerequisite; reproduced with a fresh explicitly sequential retry. No entity was read. |
+| Grok Bot EU workflow-result query | PASS on September 24 after the production fix: fresh `workflow_querying_info`, then `query_workflows` with `rows(first: 1)` and identifier-only selection returned one demo row, without error. This supersedes the September 22 prerequisite failure below. |
 | Grok Bot US authorization and tool call | PASS: selected US in installed plugin setup, completed owner-approved full-scope consent, and observed Connected. Grok Bot reported `list_workflows` succeeded with zero workflows and no error in the US test workspace. |
+| Grok Bot US query execution | PASS on September 24: existing US connection reused, `list_workflows` returned zero items, then `workflow_querying_info` and `query_workflows` with `{ __typename }` succeeded without errors. This checks query execution, not US entity contents. |
 | Grok Bot write operations, public listing | NOT TESTED. |
 
 ## Region configuration findings
@@ -65,9 +66,21 @@ The proposed backend callback exception remains on hold: it was not needed for t
 
 The existing EU account successfully repeated `list_workflows` with `page_size: 5`, returning five workflows without another login. A bounded search for demo/test workflows also succeeded. A later check restored EU after US testing, quit/reopened Grok Bot, and successfully repeated a fresh five-item workflow-list call without another login. Token-expiry refresh remains untested.
 
-The demo-result check failed before retrieving any entity: `workflow_querying_info` succeeded, then `query_workflows` returned MCP error `-32000`: “You must call `workflow_querying_info` tool before using this tool”. A second attempt explicitly called the prerequisite first, waited for success, then queried one demo row; the same error occurred. Evidence is the Grok Bot UI report, not a captured raw transport trace. Backend source inspection and a local transport probe reproduced this error when prerequisite and query calls do not share a surviving MCP session; same-session calls passed. Actual Grok Bot session headers and lifecycle were not captured, so the production transport cause is unverified. A focused backend fix is being prepared to make schema guidance advisory while preserving authorization and complexity controls. No fix has been deployed; do not treat full workflow-result querying as verified.
+The demo-result check failed before retrieving any entity: `workflow_querying_info` succeeded, then `query_workflows` returned MCP error `-32000`: “You must call `workflow_querying_info` tool before using this tool”. A second attempt explicitly called the prerequisite first, waited for success, then queried one demo row; the same error occurred. Evidence is the Grok Bot UI report, not a captured raw transport trace. Backend source inspection and a local transport probe reproduced this error when prerequisite and query calls do not share a surviving MCP session; same-session calls passed. Actual Grok Bot session headers and lifecycle were not captured, so the production transport cause is unverified. A focused backend fix subsequently made schema guidance advisory while preserving authorization and complexity controls. It reached production before the September 24 retest below; this paragraph records the earlier failure, not the current result.
 
 Grok Bot's Edit Values form states that setup values apply to the plugin's connectors. Switching the endpoint to US reset the account to Needs auth. Authenticate then opened the US V7 consent page with available workspaces. The owner then approved all offered permissions for the US test workspace. Consent completed, Grok Bot showed Connected, and a fresh `list_workflows` call limited to five succeeded with zero workflows and no error. We restored EU afterward; it showed Connected and 46 of 46 enabled tools. A fresh EU list call after reopening the app returned five workflows successfully.
+
+## Production query retest — September 24, 2026
+
+The backend workflow-query fix was confirmed included in a successful production deployment for both EU and US before testing. No deployment was initiated as part of this retest. The held native-callback change was not used.
+
+Through the actual installed team-marketplace plugin in the dedicated Grok Bot test conversation:
+
+- **EU:** a fresh `workflow_querying_info` succeeded, followed sequentially by `query_workflows` on a harmless demo workflow with `rows(first: 1)` and an identifier-only selection. Grok Bot reported success, one row returned, and no errors.
+- **US:** changing the plugin endpoint to US reused the existing authorized account and showed Connected. A fresh `list_workflows` with `page_size: 1` returned zero workflows. `workflow_querying_info` then succeeded, followed by a successful `query_workflows` call with `{ __typename }`. No errors were reported. This empty workspace test verifies GraphQL execution, not entity retrieval.
+- **Restoration:** the plugin endpoint was restored to EU after testing and showed Connected with 51 of 51 tools enabled.
+
+The previously reproducible prerequisite error did not recur. Evidence is the tool outcome report in the native Grok Bot UI; raw MCP transport traces were not captured. No customer documents or property contents were requested or reproduced, and no writes or workflow runs were performed. Token-expiry refresh and public-marketplace installation remain unverified. The public listing has not yet been submitted.
 
 ## Retest
 
